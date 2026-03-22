@@ -52,14 +52,24 @@ class TGCustomYield:
         if media_session is None:
             test_mode = await client.storage.test_mode()
 
+            # Resolve the DC's IP and port the same way Pyrofork does internally
+            dc_option = await client.get_dc_option(
+                data.dc_id,
+                is_media=True,
+                ipv6=client.ipv6
+            )
+            server_address = dc_option.ip_address
+            port = dc_option.port
+
             if data.dc_id != await client.storage.dc_id():
-                auth_key = await Auth(client, data.dc_id, test_mode).create()
+                # Foreign DC — create a fresh auth key then import authorization
+                auth_key = await Auth(
+                    client, data.dc_id, server_address, port, test_mode
+                ).create()
+
                 media_session = Session(
-                    client,
-                    data.dc_id,
-                    auth_key,
-                    test_mode,
-                    is_media=True,
+                    client, data.dc_id, server_address, port,
+                    auth_key, test_mode, is_media=True,
                 )
                 await media_session.start()
 
@@ -81,12 +91,10 @@ class TGCustomYield:
                     await media_session.stop()
                     raise AuthBytesInvalid
             else:
+                # Same DC — reuse the existing auth key
                 media_session = Session(
-                    client,
-                    data.dc_id,
-                    await client.storage.auth_key(),
-                    test_mode,
-                    is_media=True,
+                    client, data.dc_id, server_address, port,
+                    await client.storage.auth_key(), test_mode, is_media=True,
                 )
                 await media_session.start()
 
