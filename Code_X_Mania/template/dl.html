@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f13;
+      color: #e8e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 16px;
+      padding: 40px 36px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .icon { font-size: 4rem; margin-bottom: 18px; }
+
+    .filename {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #90cdf4;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    .filesize {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-bottom: 32px;
+    }
+
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 36px;
+      background: linear-gradient(135deg, #3182ce, #2b6cb0);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .dl-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(49,130,206,.45); }
+
+    footer {
+      margin-top: 32px;
+      font-size: 0.78rem;
+      color: #4a5568;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📦</div>
+    <div class="filename">{{FILENAME}}</div>
+    <div class="filesize">{{FILESIZE}}</div>
+    <a class="dl-btn" href="{{SRC}}" download="{{FILENAME}}">⬇ Download File</a>
+  </div>
+  <footer>StreamBot &mdash; Fast Telegram File Streamer</footer>
+</body>
+</html>

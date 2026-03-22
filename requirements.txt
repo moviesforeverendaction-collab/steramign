@@ -1,0 +1,8 @@
+kurigram
+tgcrypto
+aiohttp[speedups]
+python-dotenv
+motor[srv]
+aiofiles
+dnspython
+uvloop; sys_platform != "win32"

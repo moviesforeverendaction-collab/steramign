@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta property="og:title" content="{{TITLE}}" />
+  <meta property="og:type" content="video.other" />
+  <title>{{TITLE}}</title>
+
+  <!-- Plyr CSS -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f13;
+      color: #e8e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background: linear-gradient(90deg, #1a1a2e 0%, #16213e 100%);
+      border-bottom: 1px solid #2a2a4a;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header .logo { font-size: 1.5rem; }
+    header h1 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #a0aec0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: calc(100vw - 200px);
+    }
+    header h1 span { color: #63b3ed; }
+
+    .player-wrap {
+      width: 100%;
+      max-width: 1100px;
+      padding: 28px 16px 0;
+    }
+
+    .filename-bar {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px 8px 0 0;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      color: #90cdf4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .filename-bar span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Plyr container */
+    .plyr-container {
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .plyr--video .plyr__control--overlaid { background: rgba(99,179,237,.85); }
+    .plyr--video .plyr__control--overlaid:hover { background: #63b3ed; }
+    .plyr--full-ui input[type=range] { color: #63b3ed; }
+
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 18px;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #3182ce, #2b6cb0);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(49,130,206,.4); }
+
+    .actions {
+      width: 100%;
+      max-width: 1100px;
+      padding: 0 16px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #4a5568;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <span class="logo">🎬</span>
+    <h1><span>Now Playing:</span> {{FILENAME}}</h1>
+  </header>
+
+  <div class="player-wrap">
+    <div class="filename-bar">
+      📂 <span>{{FILENAME}}</span>
+    </div>
+    <div class="plyr-container">
+      <{{TAG}} id="player" controls crossorigin playsinline>
+        <source src="{{SRC}}" type="{{MIME}}" />
+        Your browser does not support this media type.
+      </{{TAG}}>
+    </div>
+  </div>
+
+  <div class="actions">
+    <a class="dl-btn" href="{{SRC}}" download="{{FILENAME}}">
+      ⬇ Download File
+    </a>
+  </div>
+
+  <footer>StreamBot &mdash; Fast Telegram File Streamer</footer>
+
+  <!-- Plyr JS -->
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const player = new Plyr('#player', {
+        controls: [
+          'play-large', 'rewind', 'play', 'fast-forward',
+          'progress', 'current-time', 'duration',
+          'mute', 'volume', 'captions',
+          'settings', 'pip', 'airplay', 'download', 'fullscreen'
+        ],
+        settings: ['captions', 'quality', 'speed'],
+        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
+        keyboard: { focused: true, global: true },
+      });
+    });
+  </script>
+</body>
+</html>
