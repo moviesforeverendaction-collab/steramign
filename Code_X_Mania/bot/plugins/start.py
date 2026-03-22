@@ -47,7 +47,7 @@ async def _gate_reply(client, chat_id: int):
     )
 
 
-@StreamBot.on_message(filters.command("start") & filters.private & ~filters.edited)
+@StreamBot.on_message(filters.command("start") & filters.private)
 async def start_handler(client, message):
     user = message.from_user
     await _ensure_user(client, user.id, user.first_name)
@@ -106,7 +106,7 @@ async def start_handler(client, message):
         await message.reply_text("❌ Something went wrong. Please try again.")
 
 
-@StreamBot.on_message(filters.command("help") & filters.private & ~filters.edited)
+@StreamBot.on_message(filters.command("help") & filters.private)
 async def help_handler(client, message):
     user = message.from_user
     await _ensure_user(client, user.id, user.first_name)
