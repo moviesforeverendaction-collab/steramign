@@ -15,7 +15,7 @@ from Code_X_Mania.vars import Var
 log = logging.getLogger(__name__)
 db  = Database(Var.DATABASE_URL, Var.SESSION_NAME)
 
-OWNER_FILTER = filters.private & filters.user(Var.OWNER_ID) & ~filters.edited
+OWNER_FILTER = filters.private & filters.user(Var.OWNER_ID)
 
 
 @StreamBot.on_message(filters.command("status") & OWNER_FILTER)
