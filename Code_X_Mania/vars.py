@@ -14,7 +14,7 @@ class Var:
 
     # --- Performance (no artificial limits) ---
     # 0 = let Kurigram decide (uses all cores); set higher e.g. 200 for more parallelism
-    WORKERS         = int(os.getenv("WORKERS", "0"))
+    WORKERS         = int(os.getenv("WORKERS", "80"))
     # Auto-sleep on FloodWait up to 30 min; anything above raises the exception
     SLEEP_THRESHOLD = int(os.getenv("SLEEP_THRESHOLD", "1800"))
 
