@@ -6,13 +6,6 @@ import logging
 import importlib
 from pathlib import Path
 
-# Use uvloop for much faster event loop if available (Linux/macOS)
-try:
-    import uvloop
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-except ImportError:
-    pass
-
 from aiohttp import web
 from pyrogram import idle
 
@@ -20,6 +13,17 @@ from .bot import StreamBot
 from .vars import Var
 from .server import web_server
 from .utils.database import Database
+
+# Detect uvloop AFTER all imports, then pass as loop_factory to asyncio.run().
+# NEVER call asyncio.set_event_loop_policy() here — doing so creates a new loop
+# before asyncio.run() does, which causes Pyrogram's Session recv_worker tasks
+# to bind to a different loop → RuntimeError: "Future attached to a different loop".
+try:
+    import uvloop as _uvloop
+    _loop_factory = _uvloop.new_event_loop
+except ImportError:
+    _uvloop = None
+    _loop_factory = None
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,7 +39,7 @@ PLUGIN_GLOB = "Code_X_Mania/bot/plugins/*.py"
 
 
 async def load_plugins():
-    for path in glob.glob(PLUGIN_GLOB):
+    for path in sorted(glob.glob(PLUGIN_GLOB)):
         if Path(path).stem == "__init__":      # skip package marker
             continue
         plugin_name = Path(path).stem
@@ -54,7 +58,7 @@ async def start_services():
     me = await StreamBot.get_me()
     log.info(f"Bot started: @{me.username}")
 
-    # Ensure MongoDB indexes exist (idempotent, safe to call every startup)
+    # Ensure MongoDB indexes exist (idempotent, safe every startup)
     db = Database(Var.DATABASE_URL, Var.SESSION_NAME)
     await db.ensure_indexes()
     log.info("Database indexes verified.")
@@ -68,9 +72,11 @@ async def start_services():
     log.info(f"Web server live at {Var.URL}")
 
     log.info("=" * 60)
-    log.info(f"  Bot      : {me.first_name} (@{me.username})")
-    log.info(f"  URL      : {Var.URL}")
-    log.info(f"  Owner    : @{Var.OWNER_USERNAME}")
+    log.info(f"  Bot   : {me.first_name} (@{me.username})")
+    log.info(f"  URL   : {Var.URL}")
+    log.info(f"  Owner : @{Var.OWNER_USERNAME}")
+    if _loop_factory:
+        log.info("  Loop  : uvloop (fast)")
     log.info("=" * 60)
 
     await idle()
@@ -83,7 +89,12 @@ async def stop_services():
 
 if __name__ == "__main__":
     try:
-        asyncio.run(start_services())
+        if _loop_factory:
+            # Python 3.12+: loop_factory ensures uvloop creates the SAME loop
+            # that asyncio.run() uses — no cross-loop conflicts with Pyrogram.
+            asyncio.run(start_services(), loop_factory=_loop_factory)
+        else:
+            asyncio.run(start_services())
     except KeyboardInterrupt:
         asyncio.run(stop_services())
         log.info("Service stopped.")
