@@ -3,7 +3,7 @@ import logging
 
 from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait, UserNotParticipant
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, LinkPreviewOptions
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from Code_X_Mania.bot import StreamBot
 from Code_X_Mania.utils.database import Database
@@ -12,8 +12,6 @@ from Code_X_Mania.vars import Var
 
 log = logging.getLogger(__name__)
 db  = Database(Var.DATABASE_URL, Var.SESSION_NAME)
-
-NO_PREVIEW = LinkPreviewOptions(is_disabled=True)
 
 
 async def _ensure_user(client: Client, user_id: int, first_name: str):
@@ -96,15 +94,14 @@ async def private_receive_handler(client: Client, message: Message):
             f"**Requested by:** [{user.first_name}](tg://user?id={user.id})\n"
             f"**User ID:** `{user.id}`\n"
             f"**Stream:** {stream_link}",
-            link_preview_options=NO_PREVIEW,
+            disable_web_page_preview=True,
         )
 
         await message.reply_text(
             LINK_MSG.format(name=file_name, size=file_size, stream=stream_link, dl=dl_link),
             parse_mode=enums.ParseMode.HTML,
-            link_preview_options=NO_PREVIEW,
+            disable_web_page_preview=True,
             reply_markup=_make_keyboard(stream_link, dl_link),
-            quote=True,
         )
 
     except FloodWait as e:

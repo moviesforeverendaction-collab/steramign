@@ -3,7 +3,7 @@ import time
 import logging
 
 import aiofiles
-from pyrogram import filters, enums
+from pyrogram import filters
 from pyrogram.types import Message
 
 from Code_X_Mania.bot import StreamBot
@@ -24,7 +24,6 @@ async def status_handler(_, message: Message):
     await message.reply_text(
         f"**Bot Status**\n\n"
         f"👥 Total users: `{total}`",
-        quote=True,
     )
 
 
@@ -36,7 +35,6 @@ async def broadcast_handler(_, message: Message):
 
     status_msg = await message.reply_text(
         f"📡 Starting broadcast to `{total}` users...",
-        quote=True,
     )
 
     start_time = time.time()
@@ -80,8 +78,7 @@ async def broadcast_handler(_, message: Message):
         await message.reply_document(
             document=log_path,
             caption=summary,
-            quote=True,
         )
         os.remove(log_path)
     else:
-        await message.reply_text(summary, quote=True)
+        await message.reply_text(summary)

@@ -2,7 +2,7 @@ import logging
 
 from pyrogram import filters, enums
 from pyrogram.errors import UserNotParticipant
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from Code_X_Mania.bot import StreamBot
 from Code_X_Mania.utils.database import Database
@@ -11,8 +11,6 @@ from Code_X_Mania.vars import Var
 
 log = logging.getLogger(__name__)
 db  = Database(Var.DATABASE_URL, Var.SESSION_NAME)
-
-NO_PREVIEW = LinkPreviewOptions(is_disabled=True)
 
 
 async def _ensure_user(client, user_id: int, first_name: str):
@@ -68,7 +66,7 @@ async def start_handler(client, message):
             "instant stream &amp; download links.</i>\n\n"
             "Use /help for more info.",
             parse_mode=enums.ParseMode.HTML,
-            link_preview_options=NO_PREVIEW,
+            disable_web_page_preview=True,
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("Owner", url=f"https://t.me/{Var.OWNER_USERNAME}"),
             ]]),
@@ -97,7 +95,7 @@ async def start_handler(client, message):
             f"<b>📥 Download:</b> <code>{dl_link}</code>\n\n"
             "<i>Links won't expire unless the file is deleted.</i>",
             parse_mode=enums.ParseMode.HTML,
-            link_preview_options=NO_PREVIEW,
+            disable_web_page_preview=True,
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("🖥 Stream", url=stream_link),
                 InlineKeyboardButton("📥 Download", url=dl_link),
@@ -127,5 +125,5 @@ async def help_handler(client, message):
         "/help — This message\n\n"
         "<i>No file size limits. No expiry.</i>",
         parse_mode=enums.ParseMode.HTML,
-        link_preview_options=NO_PREVIEW,
+        disable_web_page_preview=True,
     )

@@ -50,12 +50,15 @@ class TGCustomYield:
         media_session = client.media_sessions.get(data.dc_id)
 
         if media_session is None:
+            test_mode = await client.storage.test_mode()
+
             if data.dc_id != await client.storage.dc_id():
+                auth_key = await Auth(client, data.dc_id, test_mode).create()
                 media_session = Session(
                     client,
                     data.dc_id,
-                    await Auth(client, data.dc_id, await client.storage.test_mode()).create(),
-                    await client.storage.test_mode(),
+                    auth_key,
+                    test_mode,
                     is_media=True,
                 )
                 await media_session.start()
@@ -82,7 +85,7 @@ class TGCustomYield:
                     client,
                     data.dc_id,
                     await client.storage.auth_key(),
-                    await client.storage.test_mode(),
+                    test_mode,
                     is_media=True,
                 )
                 await media_session.start()
