@@ -74,8 +74,16 @@ async def stop_services():
 
 
 if __name__ == "__main__":
+    # Use a single, explicit event loop for the entire lifetime of the process.
+    # asyncio.run() creates a brand-new loop on every call; calling it for both
+    # start_services() and stop_services() would leave Pyrogram tasks dangling
+    # on the first loop while the second loop tries to run stop_services().
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     try:
-        asyncio.run(start_services())
+        loop.run_until_complete(start_services())
     except KeyboardInterrupt:
-        asyncio.run(stop_services())
+        loop.run_until_complete(stop_services())
         log.info("Service stopped.")
+    finally:
+        loop.close()
