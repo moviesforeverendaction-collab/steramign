@@ -75,7 +75,7 @@ LINK_MSG = (
 @StreamBot.on_message(
     filters.private
     & (filters.document | filters.video | filters.audio)
-    & ~filters.edited,
+   ,
     group=4,
 )
 async def private_receive_handler(client: Client, message: Message):
@@ -117,7 +117,7 @@ async def private_receive_handler(client: Client, message: Message):
 @StreamBot.on_message(
     filters.channel
     & (filters.document | filters.video)
-    & ~filters.edited,
+   ,
     group=-1,
 )
 async def channel_receive_handler(client: Client, broadcast: Message):
