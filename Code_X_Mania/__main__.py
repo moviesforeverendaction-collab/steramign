@@ -19,6 +19,7 @@ from pyrogram import idle
 from .bot import StreamBot
 from .vars import Var
 from .server import web_server
+from .utils.database import Database
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,6 +36,8 @@ PLUGIN_GLOB = "Code_X_Mania/bot/plugins/*.py"
 
 async def load_plugins():
     for path in glob.glob(PLUGIN_GLOB):
+        if Path(path).stem == "__init__":      # skip package marker
+            continue
         plugin_name = Path(path).stem
         spec = importlib.util.spec_from_file_location(
             f"Code_X_Mania.bot.plugins.{plugin_name}", path
@@ -50,6 +53,11 @@ async def start_services():
     await StreamBot.start()
     me = await StreamBot.get_me()
     log.info(f"Bot started: @{me.username}")
+
+    # Ensure MongoDB indexes exist (idempotent, safe to call every startup)
+    db = Database(Var.DATABASE_URL, Var.SESSION_NAME)
+    await db.ensure_indexes()
+    log.info("Database indexes verified.")
 
     await load_plugins()
 

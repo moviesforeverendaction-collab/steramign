@@ -20,7 +20,9 @@ class Var:
 
     # --- Bot Config ---
     BIN_CHANNEL     = int(os.getenv("BIN_CHANNEL"))
-    OWNER_ID        = str(os.getenv("OWNER_ID", ""))
+    # OWNER_ID must be int for filters.user() to match by user ID (str = username lookup)
+    _owner_raw  = os.getenv("OWNER_ID", "")
+    OWNER_ID    = int(_owner_raw) if _owner_raw.lstrip("-").isdigit() else 0
     OWNER_USERNAME  = str(os.getenv("OWNER_USERNAME", ""))
     UPDATES_CHANNEL = str(os.getenv("UPDATES_CHANNEL", "None"))
     BANNED_CHANNELS = list(
@@ -28,11 +30,12 @@ class Var:
     )
 
     # --- Web Server ---
-    PORT         = int(os.getenv("PORT", "8080"))
-    FQDN         = str(os.getenv("FQDN", os.getenv("RAILWAY_PUBLIC_DOMAIN", f"0.0.0.0:{os.getenv('PORT','8080')}")))
-    # Use https if Railway provides domain, else http
-    _scheme      = "https" if os.getenv("RAILWAY_PUBLIC_DOMAIN") or os.getenv("FQDN", "").startswith("https") else "http"
-    URL          = f"{_scheme}://{FQDN}/"
+    PORT    = int(os.getenv("PORT", "8080"))
+    # Strip any accidental scheme prefix from FQDN (prevents https://https://... URLs)
+    _raw_fqdn = os.getenv("FQDN") or os.getenv("RAILWAY_PUBLIC_DOMAIN") or f"0.0.0.0:{os.getenv('PORT', '8080')}"
+    FQDN      = _raw_fqdn.removeprefix("https://").removeprefix("http://").rstrip("/")
+    _scheme   = "https" if (os.getenv("RAILWAY_PUBLIC_DOMAIN") or os.getenv("FQDN", "").startswith("https")) else "http"
+    URL       = f"{_scheme}://{FQDN}/"
 
     # --- Database ---
     DATABASE_URL = str(os.getenv("DATABASE_URL"))

@@ -2,7 +2,7 @@
 # Adapted from megadlbot_oss (Eyaadh) — thank you!
 
 import math
-from typing import Union, AsyncGenerator
+from typing import AsyncGenerator
 
 from pyrogram import Client, raw, utils
 from pyrogram.errors import AuthBytesInvalid

@@ -53,8 +53,9 @@ async def start_handler(client, message):
     user = message.from_user
     await _ensure_user(client, user.id, user.first_name)
 
-    parts   = message.text.split("_", 1)
-    payload = parts[1] if len(parts) > 1 else None
+    # Telegram deep-link payload arrives as "/start <payload>" (space-separated)
+    parts   = message.text.split(" ", 1)
+    payload = parts[1].strip() if len(parts) > 1 else None
 
     if not await _check_subscription(client, message.chat.id):
         await _gate_reply(client, message.chat.id)
