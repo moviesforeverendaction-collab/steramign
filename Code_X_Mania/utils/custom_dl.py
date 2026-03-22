@@ -1,6 +1,3 @@
-# StreamBot - custom_dl.py
-# Adapted from megadlbot_oss (Eyaadh) — thank you!
-
 import math
 from typing import AsyncGenerator
 
@@ -10,15 +7,10 @@ from pyrogram.file_id import FileId, FileType, ThumbnailSource
 from pyrogram.session import Auth, Session
 from pyrogram.types import Message
 
-from ..bot import StreamBot
+from Code_X_Mania.bot import StreamBot
 
-
-# ---------------------------------------------------------------------------
-# Chunk helpers
-# ---------------------------------------------------------------------------
 
 async def chunk_size(length: int) -> int:
-    """Power-of-two chunk size, clamped 4 KB – 1 MB for max throughput."""
     return 2 ** max(min(math.ceil(math.log2(length / 1024)), 10), 2) * 1024
 
 
@@ -26,48 +18,35 @@ async def offset_fix(offset: int, chunksize: int) -> int:
     return offset - (offset % chunksize)
 
 
-# ---------------------------------------------------------------------------
-# Main class
-# ---------------------------------------------------------------------------
-
 class TGCustomYield:
     def __init__(self):
         self.main_bot: Client = StreamBot
 
-    # --- File properties ---
-
     @staticmethod
     async def generate_file_properties(msg: Message) -> FileId:
-        error_message = "This message has no downloadable media."
         available_media = (
             "audio", "document", "photo", "sticker",
             "animation", "video", "voice", "video_note",
         )
-
         if isinstance(msg, Message):
             for kind in available_media:
                 media = getattr(msg, kind, None)
                 if media is not None:
                     break
             else:
-                raise ValueError(error_message)
+                raise ValueError("This message has no downloadable media.")
         else:
             media = msg
 
         file_id_str = media if isinstance(media, str) else media.file_id
         file_id_obj = FileId.decode(file_id_str)
-
-        setattr(file_id_obj, "file_size",  getattr(media, "file_size",  0))
-        setattr(file_id_obj, "mime_type",  getattr(media, "mime_type",  ""))
-        setattr(file_id_obj, "file_name",  getattr(media, "file_name",  ""))
-
+        setattr(file_id_obj, "file_size", getattr(media, "file_size", 0))
+        setattr(file_id_obj, "mime_type", getattr(media, "mime_type", ""))
+        setattr(file_id_obj, "file_name", getattr(media, "file_name", ""))
         return file_id_obj
-
-    # --- Media session (cached per DC) ---
 
     async def generate_media_session(self, client: Client, msg: Message) -> Session:
         data = await self.generate_file_properties(msg)
-
         media_session = client.media_sessions.get(data.dc_id)
 
         if media_session is None:
@@ -112,8 +91,6 @@ class TGCustomYield:
 
         return media_session
 
-    # --- File location ---
-
     @staticmethod
     async def get_location(file_id: FileId):
         file_type = file_id.file_type
@@ -156,8 +133,6 @@ class TGCustomYield:
             thumb_size=file_id.thumbnail_size,
         )
 
-    # --- Streaming generator ---
-
     async def yield_file(
         self,
         media_msg: Message,
@@ -171,8 +146,7 @@ class TGCustomYield:
         data          = await self.generate_file_properties(media_msg)
         media_session = await self.generate_media_session(client, media_msg)
         location      = await self.get_location(data)
-
-        current_part = 1
+        current_part  = 1
 
         response = await media_session.send(
             raw.functions.upload.GetFile(

@@ -1,4 +1,3 @@
-# StreamBot - render_template.py
 import secrets
 import mimetypes
 import urllib.parse
@@ -6,10 +5,10 @@ from pathlib import Path
 
 import aiofiles
 
-from ..vars import Var
-from ..bot import StreamBot
-from ..utils.custom_dl import TGCustomYield
-from ..utils.human_readable import humanbytes
+from Code_X_Mania.vars import Var
+from Code_X_Mania.bot import StreamBot
+from Code_X_Mania.utils.custom_dl import TGCustomYield
+from Code_X_Mania.utils.human_readable import humanbytes
 
 TEMPLATE_DIR = Path(__file__).parent.parent / "template"
 
@@ -26,18 +25,16 @@ AUDIO_TYPES = {
 
 
 def _fill(template: str, **kwargs) -> str:
-    """Simple {{KEY}} replacement — safe against % in filenames."""
     for key, value in kwargs.items():
         template = template.replace("{{" + key + "}}", str(value))
     return template
 
 
 async def fetch_properties(message_id: int):
-    media_msg = await StreamBot.get_messages(Var.BIN_CHANNEL, message_id)
+    media_msg  = await StreamBot.get_messages(Var.BIN_CHANNEL, message_id)
     file_props = await TGCustomYield().generate_file_properties(media_msg)
-
-    file_name = file_props.file_name or f"{secrets.token_hex(4)}.bin"
-    mime_type = (
+    file_name  = file_props.file_name or f"{secrets.token_hex(4)}.bin"
+    mime_type  = (
         file_props.mime_type
         or mimetypes.guess_type(file_name)[0]
         or "application/octet-stream"
@@ -48,7 +45,7 @@ async def fetch_properties(message_id: int):
 
 async def render_page(message_id: int) -> str:
     file_name, mime_type, file_size = await fetch_properties(message_id)
-    src = urllib.parse.urljoin(Var.URL, str(message_id))
+    src        = urllib.parse.urljoin(Var.URL, str(message_id))
     mime_lower = mime_type.lower()
 
     if mime_lower in VIDEO_TYPES or mime_lower in AUDIO_TYPES:

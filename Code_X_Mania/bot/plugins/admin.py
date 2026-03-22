@@ -1,4 +1,3 @@
-# StreamBot - admin.py
 import os
 import time
 import logging
@@ -19,8 +18,6 @@ db  = Database(Var.DATABASE_URL, Var.SESSION_NAME)
 OWNER_FILTER = filters.private & filters.user(Var.OWNER_ID) & ~filters.edited
 
 
-# ── /status ──────────────────────────────────────────────────────────────────
-
 @StreamBot.on_message(filters.command("status") & OWNER_FILTER)
 async def status_handler(_, message: Message):
     total = await db.total_users_count()
@@ -32,8 +29,6 @@ async def status_handler(_, message: Message):
     )
 
 
-# ── /broadcast ───────────────────────────────────────────────────────────────
-
 @StreamBot.on_message(filters.command("broadcast") & OWNER_FILTER & filters.reply)
 async def broadcast_handler(_, message: Message):
     broadcast_msg = message.reply_to_message
@@ -41,7 +36,7 @@ async def broadcast_handler(_, message: Message):
     total         = await db.total_users_count()
 
     status_msg = await message.reply_text(
-        f"📡 Starting broadcast to `{total}` users…",
+        f"📡 Starting broadcast to `{total}` users...",
         parse_mode="Markdown",
         quote=True,
     )
@@ -62,11 +57,10 @@ async def broadcast_handler(_, message: Message):
             await db.delete_user(user["id"])
         done += 1
 
-        # Live progress every 50 users
         if done % 50 == 0:
             try:
                 await status_msg.edit_text(
-                    f"📡 Broadcasting… `{done}/{total}` — ✅ {success}  ❌ {failed}",
+                    f"📡 Broadcasting... `{done}/{total}` — ✅ {success}  ❌ {failed}",
                     parse_mode="Markdown",
                 )
             except Exception:

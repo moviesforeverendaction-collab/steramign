@@ -1,4 +1,3 @@
-# StreamBot - database.py
 import datetime
 import motor.motor_asyncio
 
@@ -10,10 +9,7 @@ class Database:
         self.col = self.db.users
 
     async def ensure_indexes(self):
-        """Call once on startup for fast lookups."""
         await self.col.create_index("id", unique=True, background=True)
-
-    # --- CRUD ---
 
     def _new_user(self, user_id: int) -> dict:
         return {"id": user_id, "join_date": datetime.date.today().isoformat()}

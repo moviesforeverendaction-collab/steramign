@@ -1,4 +1,3 @@
-# StreamBot - start.py
 import logging
 
 from pyrogram import filters
@@ -53,7 +52,6 @@ async def start_handler(client, message):
     user = message.from_user
     await _ensure_user(client, user.id, user.first_name)
 
-    # Telegram deep-link payload arrives as "/start <payload>" (space-separated)
     parts   = message.text.split(" ", 1)
     payload = parts[1].strip() if len(parts) > 1 else None
 

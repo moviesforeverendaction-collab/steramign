@@ -1,4 +1,3 @@
-# StreamBot - stream.py
 import asyncio
 import logging
 
@@ -15,8 +14,6 @@ log = logging.getLogger(__name__)
 db  = Database(Var.DATABASE_URL, Var.SESSION_NAME)
 
 
-# ── helpers ─────────────────────────────────────────────────────────────────
-
 async def _ensure_user(client: Client, user_id: int, first_name: str):
     if not await db.is_user_exist(user_id):
         await db.add_user(user_id)
@@ -30,7 +27,6 @@ async def _ensure_user(client: Client, user_id: int, first_name: str):
 
 
 async def _check_subscription(client: Client, chat_id: int) -> bool:
-    """Returns True if user is allowed (subscribed or no gate set)."""
     if Var.UPDATES_CHANNEL == "None":
         return True
     try:
@@ -39,7 +35,7 @@ async def _check_subscription(client: Client, chat_id: int) -> bool:
     except UserNotParticipant:
         return False
     except Exception:
-        return True   # don't block on unexpected errors
+        return True
 
 
 async def _gate_reply(client: Client, chat_id: int):
@@ -76,8 +72,6 @@ LINK_MSG = (
 )
 
 
-# ── private file handler ─────────────────────────────────────────────────────
-
 @StreamBot.on_message(
     filters.private
     & (filters.document | filters.video | filters.audio)
@@ -98,7 +92,6 @@ async def private_receive_handler(client: Client, message: Message):
         dl_link     = f"{Var.URL}download/{log_msg.id}"
         file_name, file_size = _file_info(message)
 
-        # Log to bin channel
         await log_msg.reply_text(
             f"**Requested by:** [{user.first_name}](tg://user?id={user.id})\n"
             f"**User ID:** `{user.id}`\n"
@@ -120,8 +113,6 @@ async def private_receive_handler(client: Client, message: Message):
         log.warning(f"FloodWait {wait}s from user {user.id}")
         await asyncio.sleep(wait)
 
-
-# ── channel file handler ─────────────────────────────────────────────────────
 
 @StreamBot.on_message(
     filters.channel

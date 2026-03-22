@@ -1,4 +1,3 @@
-# StreamBot - broadcast_helper.py
 import asyncio
 import traceback
 from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
@@ -11,7 +10,7 @@ async def send_msg(user_id: int, message) -> tuple[int, str | None]:
     except FloodWait as e:
         wait = e.value if hasattr(e, "value") else e.x
         await asyncio.sleep(wait)
-        return await send_msg(user_id, message)   # properly awaited retry
+        return await send_msg(user_id, message)
     except InputUserDeactivated:
         return 400, f"{user_id} : deactivated\n"
     except UserIsBlocked:

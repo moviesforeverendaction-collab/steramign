@@ -1,4 +1,3 @@
-# StreamBot - stream_routes.py
 import time
 import math
 import logging
@@ -6,12 +5,12 @@ import secrets
 import mimetypes
 
 from aiohttp import web
-from ..vars import Var
-from ..bot import StreamBot
+from Code_X_Mania.vars import Var
+from Code_X_Mania.bot import StreamBot
 from Code_X_Mania import StartTime
-from ..utils.custom_dl import TGCustomYield, chunk_size, offset_fix
-from ..utils.render_template import render_page
-from ..utils.time_format import get_readable_time
+from Code_X_Mania.utils.custom_dl import TGCustomYield, chunk_size, offset_fix
+from Code_X_Mania.utils.render_template import render_page
+from Code_X_Mania.utils.time_format import get_readable_time
 
 routes = web.RouteTableDef()
 log = logging.getLogger(__name__)
@@ -21,10 +20,10 @@ log = logging.getLogger(__name__)
 async def root_route_handler(request):
     me = await StreamBot.get_me()
     return web.json_response({
-        "status":   "running",
-        "bot":      f"@{me.username}",
-        "uptime":   get_readable_time(time.time() - StartTime),
-        "version":  "4.0.0",
+        "status":  "running",
+        "bot":     f"@{me.username}",
+        "uptime":  get_readable_time(time.time() - StartTime),
+        "version": "4.0.0",
     })
 
 
@@ -69,10 +68,8 @@ async def media_streamer(request, message_id: int):
         from_bytes  = request.http_range.start or 0
         until_bytes = request.http_range.stop or file_size - 1
 
-    # clamp
-    until_bytes = min(until_bytes, file_size - 1)
-    req_length  = until_bytes - from_bytes + 1
-
+    until_bytes    = min(until_bytes, file_size - 1)
+    req_length     = until_bytes - from_bytes + 1
     new_chunk_size = await chunk_size(req_length)
     offset         = await offset_fix(from_bytes, new_chunk_size)
     first_part_cut = from_bytes - offset
