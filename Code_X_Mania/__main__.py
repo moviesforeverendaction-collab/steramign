@@ -73,11 +73,29 @@ async def stop_services():
     await StreamBot.stop()
 
 
+def _cancel_all_tasks(loop: asyncio.AbstractEventLoop) -> None:
+    """Cancel every pending task and let them finish before the loop closes.
+
+    Without this step Pyrogram's Dispatcher.handler_worker coroutines are still
+    alive when loop.close() is called, producing a flood of:
+        RuntimeError: Event loop is closed
+    """
+    pending = asyncio.all_tasks(loop)
+    if not pending:
+        return
+    for task in pending:
+        task.cancel()
+    # Give cancelled tasks a chance to process their CancelledError
+    loop.run_until_complete(
+        asyncio.gather(*pending, return_exceptions=True)
+    )
+
+
 if __name__ == "__main__":
-    # Use a single, explicit event loop for the entire lifetime of the process.
-    # asyncio.run() creates a brand-new loop on every call; calling it for both
-    # start_services() and stop_services() would leave Pyrogram tasks dangling
-    # on the first loop while the second loop tries to run stop_services().
+    # A single, long-lived event loop for the entire process lifetime.
+    # We never call asyncio.run() because it closes the loop on return,
+    # which would kill Pyrogram's internal tasks before they can be
+    # properly cancelled/cleaned up.
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
@@ -86,4 +104,10 @@ if __name__ == "__main__":
         loop.run_until_complete(stop_services())
         log.info("Service stopped.")
     finally:
-        loop.close()
+        try:
+            _cancel_all_tasks(loop)          # drain Pyrogram's worker coroutines
+            loop.run_until_complete(loop.shutdown_asyncgens())
+            loop.run_until_complete(loop.shutdown_default_executor())
+        finally:
+            asyncio.set_event_loop(None)
+            loop.close()
